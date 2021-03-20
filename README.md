@@ -1,33 +1,49 @@
-class Solution {
-public:
-    double findMedianSortedArrays(vector<int>& nums1, vector<int>& nums2) {
-        vector<int> res;
-        int i=0;
-        int j=0;
-        int mid = (nums1.size() + nums2.size()) / 2;
-        int is_odd = ((nums1.size() + nums2.size()) % 2);
-        int end = is_odd ? mid : mid+1;
-        while(i < nums1.size() && j < nums2.size() && res.size() <= end) { 
-            int t;
-            if(nums1[i] > nums2[j]) {
-                t = nums2[j];
-                j++;
-            } else { 
-                t = nums1[i];
-                i++;
-            }
-            res.push_back(t);
+#include<bits/stdc++.h>
+using namespace std;
+int arr[200010];
+int temp_arr[200010];
+int counts[210];
+float get_median(int size) {
+    int index = 0;
+    for (int i = 0; i < 210 ; i++) {
+        int count = counts[i];
+        while (count--) {
+            temp_arr[index++] = i;
+            if (index > size/2) { break; }
         }
-        while( i < nums1.size() && res.size() <= end) {
-            res.push_back(nums1[i]);
-            i++;
-        }
-        while( j < nums2.size() && res.size() <= end) {
-            res.push_back(nums2[j]);
-            j++;
+        if (index > size/2) { break; }
+    }
+    return size % 2 == 1 ? temp_arr[size/2] : (temp_arr[size/2] + temp_arr[size/2-1])/2.0;
+}
+
+int main() {
+    int n, d;
+
+    scanf("%d %d", &n, &d);
+    for (int i = 0; i < n ; i++) {
+        scanf("%d", &arr[i]);
+    }
+
+    int alarm_count = 0;
+    float median = 210;
+
+    for (int i = 0; i < d ; i++) {
+        counts[arr[i]]++;
+    }
+    median = get_median(d);
+
+    for (int i = d; i < n; i++) {
+        if (arr[i] >= 2*median) {
+            alarm_count++;
         }
 
-        if(is_odd) return (double)res[mid];
-        else return ((double)res[mid] + double(res[mid-1])) / 2.0;
+        // update counts array
+        counts[arr[i-d]]--;
+        counts[arr[i]]++;
+
+        median = get_median(d);
     }
-};
+
+    printf("%d\n", alarm_count);
+    return 0;
+}
